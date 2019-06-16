@@ -105,4 +105,24 @@ def get_bigram_count_matrix_words(bigrams: Dict, words: List[str]) -> List[List[
         L += [Lw]
     return L
 
-
+def get_subset_ngrams(ngrams: Dict, words: List[str], N: int, fill: bool=False) -> Dict:
+    """
+    Get subset of ngrams only including certain words. 
+    """
+    ngram_sub = {}
+    # Unigram case -> return dictionary
+    if N == 1:
+        for word in words:
+            if word in ngrams:
+                ngram_sub[word] = ngrams[word]
+            elif fill:
+                ngram_sub[word] = 0
+        return ngram_sub
+    # N > 1 -> recursively get subset on smaller n-gram sets
+    else:
+        for word in words:
+            if word in ngrams:
+                ngram_sub[word] = get_subset_ngrams(ngrams[word], words, N-1, fill)
+            elif fill:
+                ngram_sub[word] = get_subset_ngrams({}, words, N-1, fill)
+    return ngram_sub
