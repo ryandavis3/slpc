@@ -1,7 +1,7 @@
 #!/bin/python3
 
 import re
-from typing import List, Dict
+from typing import List, Dict, Set
 
 TRANSCRIPT_PATH = "data/transcript.txt"
 
@@ -126,3 +126,17 @@ def get_subset_ngrams(ngrams: Dict, words: List[str], N: int, fill: bool=False) 
             elif fill:
                 ngram_sub[word] = get_subset_ngrams({}, words, N-1, fill)
     return ngram_sub
+
+def get_words(ngrams: Dict, n: int) -> Set:
+    """
+    Get all words in n-grams.`
+    """
+    words = set(ngrams)
+    if n == 1:
+        return words
+    else:
+        for word in ngrams:
+            words = words.union(get_words(ngrams[word], n-1))
+    return words
+
+
