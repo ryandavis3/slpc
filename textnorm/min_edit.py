@@ -1,5 +1,5 @@
 
-def sub_cost(a, b):
+def sub_cost(a: str, b: str) -> int:
     """
     Get substitution cost between strings a and b.
 
@@ -16,7 +16,7 @@ def sub_cost(a, b):
         return 2
 
 
-def min_edit_distance(source, target):
+def min_edit_distance(source: str, target: str) -> int:
     """
     Compute minimum edit distance between strings
     'source' and 'target'. Use dynamic programming.
@@ -55,6 +55,6 @@ def min_edit_distance(source, target):
     return D[n][m]
 
 
-def print_grid(D):
+def print_grid(D) -> None:
     for line in D:
         print(line)
