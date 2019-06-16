@@ -1,9 +1,10 @@
 import re 
-import collections
+import collection
+from typing import Dict, Tuple
 
 ## Implement byte-pair encoding (BPE) learning algorithm
 
-def get_stats(vocab):
+def get_stats(vocab: Dict):
     """
     Get frequency of all pairs of characters in vocabulary.
 
@@ -24,7 +25,7 @@ def get_stats(vocab):
             pairs[symbols[i], symbols[i+1]] += freq
     return pairs
 
-def merge_vocab(pair, v_in):
+def merge_vocab(pair: Tuple, v_in: Dict) -> Dict:
     """
     Merge vocabulary with new combined pair of characters.
 
