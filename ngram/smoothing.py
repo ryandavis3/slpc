@@ -1,5 +1,7 @@
 from typing import List, Dict, Set
 
+import slpc.ngram.utils as nu
+
 def get_ntlk_words() -> List[str]:
     """
     Get English words from NLTK corpus.
@@ -38,7 +40,7 @@ def expand_vocab(vocab, corpus) -> Set:
     vocab = vocab.union(corpus)
     return vocab
 
-def laplace_smooth_unigram(count: Dict, vocab: List[str]) -> Dict:
+def laplace_smooth_unigram_prob(count: Dict, vocab: List[str]) -> Dict:
     """
     Apply Laplace smoothing to generate probabilities from word
     counts.
@@ -59,3 +61,61 @@ def laplace_smooth_unigram(count: Dict, vocab: List[str]) -> Dict:
             cw = 0
         prob[word] = (cw + 1) / (N + V)
     return prob
+
+def add_one(D: Dict, word: str) -> Dict:
+    """
+    Increment value in dictionary if it exists. If it does not exist,
+    set value to 1.
+    """
+    if word in D:
+        D[word] += 1
+    else:
+        D[word] = 1
+    return D
+
+def laplace_smooth_count(count: Dict, vocab: Set, n: int) -> Dict:
+    """
+    Perform Laplace smoothing on n-gram counts. Add one to count
+    of each n-gram and set n-grams with zero count to one.
+    """
+    count = count.copy()
+    # n = 1 -> increment count and return
+    if n == 1:
+        for word in vocab:
+            count = add_one(count, word)
+        return count
+    # n > 1 -> recursively smooth on smaller n-grams
+    else:
+        for word in vocab:
+            if word not in count:
+                count[word] = {}
+            count[word] = laplace_smooth_count(count[word], vocab, n-1)
+    return count
+
+def laplace_smooth_prob_search(count: Dict, vocab: Set, n: int, V: int) -> Dict:
+    """
+    Recursively get Laplace smoothed probability for n-grams.
+    """
+    P = {}
+    if n == 1:
+        C = sum(count.values())
+        for word in vocab:
+            P[word] = count[word] / (C+V)
+        return P
+    else:
+        for word in vocab:
+            P[word] = laplace_smooth_prob_search(count[word], vocab, n-1, V)
+    return P
+
+def laplace_smooth_prob(count: Dict, n: int, vocab: Set=None) -> Dict:
+    """
+    Get Laplace smoothed probability for each ngram.
+    
+    If vocabulary not given, use unique words in ngrams as vocabulary.
+    """
+    if not vocab:
+        vocab = nu.get_words(count, n)
+    count_smooth = laplace_smooth_count(count, vocab, n)
+    V = len(vocab)
+    P = laplace_smooth_prob_search(count_smooth, vocab, n, V)
+    return P
