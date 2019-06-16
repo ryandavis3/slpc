@@ -1,7 +1,6 @@
 #!/bin/python3
 
 import re
-
 from typing import List, Dict
 
 TRANSCRIPT_PATH = "data/transcript.txt"
@@ -53,7 +52,8 @@ def remove_extraenous_phrases(words: List[str]) -> List[str]:
 
 def build_ngram_dict(text: str, n: int=2) -> Dict:
     """
-    Build nested dictionary representing ngrams in text.
+    Build nested dictionary representing ngrams in text. In the case
+    of n=1, function returns a dcitionary with counts of each word.
 
     Args:
         text (list of str): Lines of text.
@@ -84,7 +84,3 @@ def build_ngram_dict(text: str, n: int=2) -> Dict:
                         dict_level[word] = 0
                     dict_level[word] += 1
     return ngram_dict
-                
-
-
-    
