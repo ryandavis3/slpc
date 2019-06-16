@@ -2,9 +2,11 @@
 
 import re
 
+from typing import List, Dict
+
 TRANSCRIPT_PATH = "data/transcript.txt"
 
-def read_transcript_text(filename=TRANSCRIPT_PATH):
+def read_transcript_text(filename: str=TRANSCRIPT_PATH) -> str:
     """
     Read raw transcript from text file.
 
@@ -18,7 +20,7 @@ def read_transcript_text(filename=TRANSCRIPT_PATH):
         text = f.readlines()
     return text
 
-def remove_leading_code(line):
+def remove_leading_code(line: str) -> str:
     """
     Remove leading alphanumeric code from line.
 
@@ -34,7 +36,7 @@ def remove_leading_code(line):
     space = line.find(" ")
     return line[space+1:]
 
-def remove_extraenous_phrases(words):
+def remove_extraenous_phrases(words: List[str]) -> List[str]:
     """
     Remove extraneous phrases from collection of words.
 
@@ -49,7 +51,7 @@ def remove_extraenous_phrases(words):
     words = [word for word in words if word != '.']
     return words
 
-def build_ngram_dict(text, n=2):
+def build_ngram_dict(text: str, n: int=2) -> Dict:
     """
     Build nested dictionary representing ngrams in text.
 
