@@ -92,7 +92,7 @@ def laplace_smooth_count(count: Dict, vocab: Set, n: int) -> Dict:
             count[word] = laplace_smooth_count(count[word], vocab, n-1)
     return count
 
-def laplace_smooth_prob_search(count: Dict, vocab: Set, n: int, V: int) -> Dict:
+def laplace_smooth_prob_search(count: Dict, vocab: Set, n: int) -> Dict:
     """
     Recursively get Laplace smoothed probability for n-grams.
     """
@@ -100,11 +100,11 @@ def laplace_smooth_prob_search(count: Dict, vocab: Set, n: int, V: int) -> Dict:
     if n == 1:
         C = sum(count.values())
         for word in vocab:
-            P[word] = count[word] / (C+V)
+            P[word] = count[word] / C
         return P
     else:
         for word in vocab:
-            P[word] = laplace_smooth_prob_search(count[word], vocab, n-1, V)
+            P[word] = laplace_smooth_prob_search(count[word], vocab, n-1)
     return P
 
 def laplace_smooth_prob(count: Dict, n: int, vocab: Set=None) -> Dict:
@@ -116,6 +116,5 @@ def laplace_smooth_prob(count: Dict, n: int, vocab: Set=None) -> Dict:
     if not vocab:
         vocab = nu.get_words(count, n)
     count_smooth = laplace_smooth_count(count, vocab, n)
-    V = len(vocab)
-    P = laplace_smooth_prob_search(count_smooth, vocab, n, V)
+    P = laplace_smooth_prob_search(count_smooth, vocab, n)
     return P
