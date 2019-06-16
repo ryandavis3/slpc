@@ -84,3 +84,25 @@ def build_ngram_dict(text: str, n: int=2) -> Dict:
                         dict_level[word] = 0
                     dict_level[word] += 1
     return ngram_dict
+
+def get_bigram_count_matrix_words(bigrams: Dict, words: List[str]) -> List[List[str]]:
+    """
+    Get counts of bigrams in matrix format for a given set of words.
+    """
+    L = [[''] + words]
+    W = len(words)
+    # First word
+    for i, word1 in enumerate(words):
+        Lw = [word1] + [None] * W
+        # Second word
+        for j, word2 in enumerate(words):
+            if word1 not in bigrams:
+                Lw[j+1] = 0
+            elif word2 not in bigrams[word1]:
+                Lw[j+1] = 0
+            else:
+                Lw[j+1] = bigrams[word1][word2]
+        L += [Lw]
+    return L
+
+
