@@ -38,7 +38,7 @@ def expand_vocab(vocab, corpus) -> Set:
     vocab = vocab.union(corpus)
     return vocab
 
-def laplace_smooth(count: Dict, vocab: List[str]) -> Dict:
+def laplace_smooth_unigram(count: Dict, vocab: List[str]) -> Dict:
     """
     Apply Laplace smoothing to generate probabilities from word
     counts.
