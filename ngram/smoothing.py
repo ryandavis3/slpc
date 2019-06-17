@@ -118,3 +118,8 @@ def laplace_smooth_prob(count: Dict, n: int, vocab: Set=None) -> Dict:
     count_smooth = laplace_smooth_count(count, vocab, n)
     P = laplace_smooth_prob_search(count_smooth, vocab, n)
     return P
+
+## TODO: Implement class for linear interpolation. Implement
+## EM algorithm to fit parameters of interpolation.
+
+## TODO: Function to get continuation probability following JM page 54.
