@@ -1,3 +1,4 @@
+import logging
 from typing import List, Dict, Set
 
 import slpc.ngram.utils as nu
@@ -92,19 +93,24 @@ def laplace_smooth_count(count: Dict, vocab: Set, n: int) -> Dict:
             count[word] = laplace_smooth_count(count[word], vocab, n-1)
     return count
 
-def laplace_smooth_prob_search(count: Dict, vocab: Set, n: int) -> Dict:
+def laplace_smooth_prob_search(count: Dict, vocab: Set, n: int, fills: Dict) -> Dict:
     """
     Recursively get Laplace smoothed probability for n-grams.
     """
     P = {}
     if n == 1:
+        for word in vocab:
+            count = add_one(count, word)
         C = sum(count.values())
         for word in vocab:
             P[word] = count[word] / C
         return P
     else:
         for word in vocab:
-            P[word] = laplace_smooth_prob_search(count[word], vocab, n-1)
+            if word in count:
+                P[word] = laplace_smooth_prob_search(count[word], vocab, n-1, fills)
+            else:
+                P[word] = fills[n-1]
     return P
 
 def laplace_smooth_prob(count: Dict, n: int, vocab: Set=None) -> Dict:
@@ -115,8 +121,10 @@ def laplace_smooth_prob(count: Dict, n: int, vocab: Set=None) -> Dict:
     """
     if not vocab:
         vocab = nu.get_words(count, n)
-    count_smooth = laplace_smooth_count(count, vocab, n)
-    P = laplace_smooth_prob_search(count_smooth, vocab, n)
+    fills = {}
+    for k in range(1, n+1):
+        fills[k] = laplace_fill_probability(vocab, k)
+    P = laplace_smooth_prob_search(count, vocab, n, fills)
     return P
 
 ## TODO: Implement class for linear interpolation. Implement
@@ -124,6 +132,24 @@ def laplace_smooth_prob(count: Dict, n: int, vocab: Set=None) -> Dict:
 
 ## TODO: Function to get continuation probability following JM page 54.
 
+def laplace_fill_probability(vocab: Set, n: int):
+    """
+    Fill probabilities where none of the vocabulary is present.
+    
+    TODO: Can optimize with different data structure that recognizes
+    if word / n-gram is missing rather than explicitly storing the
+    entire vocabulary.
+    """
+    P = {}
+    if n == 1:
+        p = 1 / len(vocab)
+        for word in vocab:
+            P[word] = p
+    else:
+        filler = laplace_fill_probability(vocab, n-1)
+        for word in vocab:
+            P[word] = filler
+    return P
 
 class Interpolation:
     """
@@ -134,14 +160,32 @@ class Interpolation:
         Constructor. Store n-gram dictionary as a data member.
         """
         self.n = n
+
         # Store counts for each k-gram for k = 1,2,...n.
         self.ngrams = {}
         for k in range(1, n+1):
+            logging.info('Building n-gram dictionaries.')
             self.ngrams[k] = nu.build_ngram_dict(text, k)
+        
         # Store probabilities for each k-gram for k = 1,2,...n.
         self.ngrams_prob = {}
         for k in range(1, n+1):
-            print(k)
+            logging.info('Building n-gram probabilities for n=%s.', k)
             self.ngrams_prob[k] = laplace_smooth_prob(self.ngrams[k], k)
 
+        # Placeholder for parameters
+        self.params = [None] * n
 
+    def predict(self, ngram: List[str]) -> float:
+        """
+        Predict probability of an n-gram.
+        """
+        p = 0
+        for k in range(self.n):
+            P = self.ngrams_prob[k+1]
+            j = 0
+            while j < k:
+                P = P[ngram[j]]
+                j += 1
+            p += self.params[k] * P[ngram[j]]
+        return p
