@@ -123,3 +123,25 @@ def laplace_smooth_prob(count: Dict, n: int, vocab: Set=None) -> Dict:
 ## EM algorithm to fit parameters of interpolation.
 
 ## TODO: Function to get continuation probability following JM page 54.
+
+
+class Interpolation:
+    """
+    Class for simple linear interpolation using different order n-grams.
+    """
+    def __init__(self, text: str, n: int):
+        """
+        Constructor. Store n-gram dictionary as a data member.
+        """
+        self.n = n
+        # Store counts for each k-gram for k = 1,2,...n.
+        self.ngrams = {}
+        for k in range(1, n+1):
+            self.ngrams[k] = nu.build_ngram_dict(text, k)
+        # Store probabilities for each k-gram for k = 1,2,...n.
+        self.ngrams_prob = {}
+        for k in range(1, n+1):
+            print(k)
+            self.ngrams_prob[k] = laplace_smooth_prob(self.ngrams[k], k)
+
+
