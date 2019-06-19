@@ -189,4 +189,19 @@ class Interpolation:
 
 ## TODO: Function to get continuation probability following JM page 54.
 
+def get_continuation_probability(word: str, ngrams: Dict, n: int, W: int=None) -> float:
+    """
+    Get continuation probability for word. Base the continuation
+    probability on the number of different contexts the word has
+    appeared in (i.e. the number of bigrams it completes.
+    
+    Args:
+        word (str)
+        ngrams (Dict): Must be in reversed order!!!
+    """
+    if not W:
+        words = nu.get_words(ngrams, n, inner=True)
+        W = len(W)
+    return len(ngrams[word]) / W
+
 
