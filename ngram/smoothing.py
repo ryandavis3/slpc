@@ -127,10 +127,7 @@ def laplace_smooth_prob(count: Dict, n: int, vocab: Set=None) -> Dict:
     P = laplace_smooth_prob_search(count, vocab, n, fills)
     return P
 
-## TODO: Implement class for linear interpolation. Implement
-## EM algorithm to fit parameters of interpolation.
-
-## TODO: Function to get continuation probability following JM page 54.
+## TODO: Implement EM algorithm to fit parameters of interpolation.
 
 def laplace_fill_probability(vocab: Set, n: int):
     """
@@ -189,3 +186,7 @@ class Interpolation:
                 j += 1
             p += self.params[k] * P[ngram[j]]
         return p
+
+## TODO: Function to get continuation probability following JM page 54.
+
+

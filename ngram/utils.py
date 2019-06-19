@@ -50,7 +50,49 @@ def remove_extraenous_phrases(words: List[str]) -> List[str]:
     words = [word for word in words if word != '.']
     return words
 
-def build_ngram_dict(text: str, n: int=2) -> Dict:
+def parse_words_from_line(line: str) -> List[str]:
+    """
+    Parse words from line of text.
+    """
+    line = remove_leading_code(line)
+    words = line.split()
+    words = remove_extraenous_phrases(words)
+    words = ['<s>'] + words + ['</s>']
+    return words
+
+def ngram_search_backward(D: Dict, ngram: List[str], n: int, k: int) -> Dict:
+    """
+    Recursively build ngram nested dictionary backward (last word
+    in n-gram at top level).
+    """
+    word = ngram[k]
+    if k == 0:
+        if word not in D:
+            D[word] = 0
+        D[word] += 1
+    else:
+        if word not in D:
+            D[word] = {}
+        D[word] = ngram_search_backward(D[word], ngram, n, k-1)
+    return D
+
+def ngram_search_forward(D: Dict, ngram: List[str], n: int, k: int) -> Dict:
+    """
+    Recursively build ngram nested dictionary forward (first word
+    in n-gram at top level).
+    """
+    word = ngram[k]
+    if k == n-1:
+        if word not in D:
+            D[word] = 0
+        D[word] += 1
+    else:
+        if word not in D:
+            D[word] = {}
+        D[word] = ngram_search_forward(D[word], ngram, n, k+1)
+    return D
+
+def build_ngram_dict(text: str, n: int=2, reverse: bool=False) -> Dict:
     """
     Build nested dictionary representing ngrams in text. In the case
     of n=1, function returns a dcitionary with counts of each word.
@@ -58,32 +100,23 @@ def build_ngram_dict(text: str, n: int=2) -> Dict:
     Args:
         text (list of str): Lines of text.
         n (int): Number of words per n-gram.
+        reverse (bool): If True, use "reverse" order.
 
     Returns:
         dict: Nested keys represent subsequent words
             in an n-gram. Leaf values represent the count of the
             n-gram in the text.
     """
-    ngram_dict = dict()
+    D = {}
     for line in text:
-        line = remove_leading_code(line)
-        words = line.split()
-        words = remove_extraenous_phrases(words)
-        words = ['<s>'] + words + ['</s>']
+        words = parse_words_from_line(line)
         ngrams = [words[i:i+n] for i in range(len(words)-n)]
         for ngram in ngrams:
-            dict_level = ngram_dict
-            for i in range(n):
-                word = ngram[i]
-                if i < n-1:
-                    if word not in dict_level:
-                        dict_level[word] = dict()
-                    dict_level = dict_level[word]
-                else:
-                    if word not in dict_level:
-                        dict_level[word] = 0
-                    dict_level[word] += 1
-    return ngram_dict
+            if reverse:
+                D = ngram_search_backward(D, ngram, n, n-1)
+            else:
+                D = ngram_search_forward(D, ngram, n, 0)
+    return D
 
 def get_bigram_count_matrix_words(bigrams: Dict, words: List[str]) -> List[List[str]]:
     """
