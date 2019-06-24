@@ -1,4 +1,7 @@
 import os
+import math
+
+from typing import List
 
 ## Directory and file names for example text files.
 
@@ -19,7 +22,7 @@ def to_int(s: str) -> int:
         n = None
     return n
 
-def read_dataset(name: str, directory: str=DATA_DIR):
+def read_dataset(name: str, directory: str=DATA_DIR) -> List[List]:
     """
     Read dataset from disk into memory
     """
@@ -41,3 +44,29 @@ def read_dataset(name: str, directory: str=DATA_DIR):
             continue
         text_parse += [line]
     return text_parse
+
+class NaiveBayes:
+    """
+    Class implementing Naive Bayes for document classification.
+    """
+    def __init__(self):
+        pass
+    def train(self, data: List[List]):
+        """
+        Train classifier on text.
+        """
+        Ndoc = len(data)
+        # Represent using dictionary by class
+        C = {}
+        for L in data:
+            text = L[0]
+            label = L[1]
+            if label not in C:
+                C[label] = []
+            C[label] += [text]
+        # Get log prior probababilities. Use MLE - estimate is the
+        # relative frequency of the document.
+        logprior = {}
+        for label in C:
+            logprior[label] = len(C[label]) / Ndoc
+
