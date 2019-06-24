@@ -8,3 +8,4 @@ Authors' web site: https://web.stanford.edu/~jurafsky/slp3/
 Topics Covered:
 - Text Normalization
 - N-Grams
+- Naive Bayes
