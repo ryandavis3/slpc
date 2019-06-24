@@ -1,7 +1,7 @@
 import os
 import math
 
-from typing import List
+from typing import List, Set
 
 ## Directory and file names for example text files.
 
@@ -34,7 +34,6 @@ def read_dataset(name: str, directory: str=DATA_DIR) -> List[List]:
     text_parse = []
     for line in text:
         line = line.strip().split('\t')
-        print(line)
         if len(line) != 2:
             continue
         line[1] = to_int(line[1])
@@ -44,6 +43,13 @@ def read_dataset(name: str, directory: str=DATA_DIR) -> List[List]:
             continue
         text_parse += [line]
     return text_parse
+
+def get_vocab_from_data(data: List[List]) -> Set:
+    """
+    Get vocabulary from data.
+    """
+    texts = [row[0] for row in data]
+    pass 
 
 class NaiveBayes:
     """
